@@ -1,0 +1,243 @@
+---
+title: "QMM7301 Case Study  1 [20%]"
+author:
+- Bruno Akune
+- A00331628
+date: 'Due: October 15, 2025 at 11:59PM'
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+extra_dependencies: xcolor
+---
+## Introduction
+
+|       Variable       |           Type            |
+|:--------------------:|:-------------------------:|
+|       Date.          |        Identifier         |
+|       Class.         |        Categorical        |
+|       Study.         |       Quantitative        |
+|       Lunch.         |   Categorical (Nominal)   |
+|   Programs Studied.  |   Categorical (Ordinal)   |
+|Assignments Completed |  Quantitative (Discrete)  |
+|   Video Game Hours   | Quantitative (Continuous) |
+|  Term (F24 or W25)   |        Categorical        |
+
+This case study will breakdown and analyze how I manage my daily activities. My daily activities are divided among attending classes, studying, and working. My mornings usually start with either attending classes or going to my part-time job. After finishing my classes or shift, I go home and study or complete any assignments until nighttime. At night, I have the rest of my classes, usually from around 5:30 p.m. to 9:00 p.m. I spend the rest of the night taking time for myself, either studying more or taking care of my dog.
+
+The way I currently spend my days is how I originally planned—focusing on my studies to successfully transition into a data-related career from my previous design background.
+
+The main difference between this semester and the last one is that I spend less time playing games and more time studying. I have also completed more assignments compared to the previous semester.
+
+```{r include=FALSE}
+bruno<-read.csv(file=file.choose(), header=TRUE)
+bruno
+bruno.vars<-subset(bruno, select=c("Study", "Number.of.assignments.or.quiz.completed", "Hours.of.video.games"))
+summary(bruno.vars)
+sd(bruno.vars$Study, na.rm=TRUE)
+sd(bruno.vars$Number.of.assignments.or.quiz.completed, na.rm=TRUE)
+sd(bruno.vars$Hours.of.video.games, na.rm=TRUE)
+```
+
+ Study            Number.of.assignments.or.quiz.completed  Hours.of.video.games
+ Min.   : 0.000   Min.   :0.0000                           Min.   :0.000       
+ 1st Qu.: 3.000   1st Qu.:0.0000                           1st Qu.:0.500       
+ Median : 6.000   Median :0.0000                           Median :1.000       
+ Mean   : 5.491   Mean   :0.6905                           Mean   :1.599       
+ 3rd Qu.: 8.000   3rd Qu.:1.0000                           3rd Qu.:2.000       
+ Max.   :10.000   Max.   :3.0000                           Max.   :6.000       
+ SD.    :2.4128   SD.    :0.9162                           Sd.    :1.421
+ NA's   :10              
+
+```{r echo=FALSE}
+#Show output only
+hist(bruno$Study, xlab="Study", main="Daily hours of study")
+boxplot(bruno$Study, ylab="Study", main="Daily hours of study")
+hist(bruno$Number.of.assignments.or.quiz.completed, xlab="Number.of.assignments.or.quiz.completed", main="Number of school projects completed")
+hist(bruno$Hours.of.video.games, xlab="Hours.of.video.games", main="Hours of Video Game Each Day")
+
+```
+Number of assignments completed and hours of video game do not meet the symetrical requirement.
+
+## Data Analysis
+
+### Confidence Intervals
+
+Calculating the mean hours of study:
+```{r include=FALSE}
+#Create a 95% confidence interval for the mean number of hours spent studying per day. Interpret the interval in the context of the problem.
+
+mb <- mean(bruno$Study)
+#5.619
+sd <- sd(bruno$Study)
+#2.412
+n <- nrow(bruno)
+#126
+t.crit <- qt(.975, n - 1)
+#1.979
+SE<-sd/sqrt(n)
+#0.2149
+mb-t.crit*SE
+mb+t.crit*SE
+#5.1936 & #6.044
+```
+Interpreting the confidence interval:
+I am 95% confident that the mean study hours per day is 5.2 hours and 6 hours.
+
+Calculating the mean of assignments completed:
+```{r include=FALSE}
+#Create a 95% confidence interval for the mean of the discrete quantitative variable of your choice (variable 6) Interpret the interval in the context of the problem.
+
+mb.2 <- mean(bruno$Number.of.assignments.or.quiz.completed)
+mb.2 #0.69
+sd.2 <- sd(bruno$Number.of.assignments.or.quiz.completed)
+sd.2 #0.916
+n <- nrow(bruno)
+#126
+t.crit <- qt(.975, n - 1)
+#1.979
+SE<-sd.2/sqrt(n)
+SE #0.0816
+mb.2-t.crit*SE
+mb.2+t.crit*SE
+#0.5289 & #0.8520
+```
+
+Interpreting the confidence interval:
+I am 95% confident that the mean of assignments completed is 0.5289 hours and 0.8520 assignment per day.
+
+### One-Sample Hypothesis Tests
+
+#Test the hypothesis that your mean number of hours studied is greater than 3.13 hours per day. Test at the 0.05 level of significance. In your report, write out the hypotheses using the proper notation, report the p-value (or critical value), make a final decision (reject or do not reject), and interpret the decision.
+McGill University students are considered to have the highest study ours per day in Canada according to a 
+MacLean’s study. The average McGill student studies around 3.13 hours per day. To analyze whether I'm above or below this average we can conduct a One-Sample Hypothesis Test.
+
+Hypothesis:
+
+$H_0: \mu = 3.13$ hours
+
+$H_A: \mu \neq 3.13$ hours
+
+```{r echo=FALSE}
+study.hours <- bruno$Study
+study.hours
+
+n <- length(bruno$Study)
+n
+
+df = n-1
+df
+
+hist(study.hours)
+boxplot(study.hours)
+
+t.test(study.hours, mu = 3.13, alternative = "greater")
+```
+The mean hours studied is 5.6. The p-value is < 2.2e-16, which is smaller than 0.05, therefore we reject the null hypothesis. It means that my average amount of time studying is 5.6, which is higher than the 3.13 average.
+
+Using the same testing methodology we can use other columns within my data. I will use my Numbers of Assignment completed to explore if I do at least one assignment per day. In order to conduct this test we will be using a level of significance of 0.05
+
+Hypothesis:
+$H_0: \mu = 1$ 
+
+$H_A: \mu \neq 1$ 
+
+```{r echo=FALSE}
+assignments <- bruno$Number.of.assignments.or.quiz.completed
+assignments
+
+n <- length(bruno$Number.of.assignments.or.quiz.completed)
+n
+
+df = n-1
+df
+
+hist(assignments)
+boxplot(assignments)
+
+t.test(assignments, mu = 1, alternative = "greater")
+```
+
+Using the One Sample t-test method, it demonstrate that the p-value is 0.999 way above the 0.05 confidence level. Meaning that we fail to reject the null hypothesis, and that there are not enough data to backup my original claim. The mean of 0.69 also supports my conclusion that I currently do not meet the 1 assignment per day hypothesis.
+
+### Part 3: Two-Sample Hypothesis Tests
+In order to conduct Paired Two-Sample tests, we can divide the data into terms. Spring and Fall. Spring being the first term, when I started documenting the data. Fall being the current term, where I'm still documenting the data.
+
+This does align with the independence assumptions check, where both of the data are independent from each other.That's because my spring data cannot influence my fall data, and vice versa. 
+```{r include=FALSE}
+library(dplyr)
+
+term <- select(bruno, Date, Study)
+term
+
+# Convert Date column to Date type
+term$Date <- as.Date(term$Date)
+term$Date
+
+#Spring: May 13th to Aug 11th
+#Fall: Sept 10 to today(Oct 16)
+spring25 <- term %>%
+  filter(between(Date, as.Date("2025-05-13"), as.Date("2025-08-11")))#use dplyr between function
+spring25
+spring25$Study #Spring study hours
+
+fall25 <- term %>%
+  filter(between(Date, as.Date("2025-09-10"), as.Date("2025-10-16")))#use dplyr between function
+fall25
+fall25$Study
+
+#part 3.2 - create a random sample of 10 days from the subset
+set.seed(1234)
+brunoS25 <- sample(spring25$Study, 10)
+brunoS25
+
+brunoF25<-sample(fall25$Study, 10)
+brunoF25
+```
+#Test the hypothesis that you spent more time studying per day during semester 1 than semester 2.
+#Choose the correct test: two-sample t-test, pooled test, or paired test and explain why you chose it. 
+To analyze if I studied more during the spring than fall term. I will use the paired two sample t-test, they are random days of different semester, adding that we choose the same amount of days making they related.
+
+Paired two sample t-test hypothesis:
+
+H0: The time Study time per day from spring term is equal than the fall term
+
+HA: The time Study time per day from spring term is not equal than the fall term
+#greater
+
+#Test at the 0.05 level of significance. In your report, write out the hypotheses using the proper notation, report the p-value (or critical value), make a final decision (reject or do not reject), and interpret that decision in context.
+Using a 0.05 level of significance
+```{r include=FALSE}
+t.test(brunoS25, brunoF25,
+       paired = TRUE,
+       var.equal = FALSE,
+       conf.level = 0.95,
+       alternative = "greater")
+```
+The p-value is. 0.769, it is way higher than the 0.05 confidence level meaning that we fail to reject the null hypothesis. There is not enough evidence that I studied more in the Spring term than in Fall term.
+
+#From your subsets, create new variables by selecting the first 10 days from semester 1 (F24) and the first 10 days from semester 2 (W25). 
+When selecting the first 10 days of each term. The testing method changes to the paired test, because the chosen days are paired and not random like the previous one.
+
+```{r include=FALSE}
+#part 3.3 - select the first 10 days from the subset
+brunof25.3.3<-fall25$Study[1:10]
+brunos25.3.3<-spring25$Study[1:10]
+brunof25.3.3
+brunos25.3.3
+
+t.test(brunos25.3.3, brunof25.3.3,  	
+       alternative="two.sided", var.equal=FALSE, 
+       paired=TRUE, conf.level = 0.95)
+```
+The p-value of the paired t-test method is 0.27, higher than 0.05. Meaning that we fail to reject the null hypothesis. In other words, the amount of data collected is insufficient and the result happened due to random chances. There is not enough evidences that support the Null hypothesis.
+
+## Conclusion
+
+My daily activity is split between studying(either studying or doing assignments), sleeping and work. Studying about 6 hours per day and almost doing one assignment per day. While the rest of the day is split between work and sleep.
+
+Based on this analysis, my current daily routine is expected. During college class time, my expectation is that my studies are priority.
+
+Based on the data collected, it's hard to conclude whether there's a difference in how I spend my time studying during this semester to previous semester. Curently, I'm studying more compared to previous semester, which was the goal. However, statistically speaking, there is not enough evidence to prove that.
+
+This Case Study helped me to gauge how close I am to my goal, I believe that the more I spend time studying, the better my grades will be. My goal of having high grades, is that it will improve my chances of landing a job after I graduate.
